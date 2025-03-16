@@ -1,107 +1,146 @@
 // app/(tabs)/SignUpScreen.tsx
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { RootStackParamList } from './types';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '../types';
 
-type SignUpScreenNavigationProp = StackNavigationProp<RootStackParamList, 'SignUp'>;
+type SignUpScreenNavigationProp = StackNavigationProp<RootStackParamList, 'signup'>;
 
-interface Props {
-  navigation: SignUpScreenNavigationProp;
-}
-
-const SignUpScreen: React.FC = () => {
+export default function SignUpScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const navigation = useNavigation<SignUpScreenNavigationProp>();
 
-  const handleSignUp = () => {
-    if (!email || !password) {
-      Alert.alert('Error', 'Please enter both email and password.');
+  const handleSignup = () => {
+    if (!email || !password || !confirmPassword) {
+      Alert.alert('Error', 'Please fill in all fields');
       return;
     }
 
-    // Mock sign-up logic
-    Alert.alert('Success', 'Account created successfully!');
-    navigation.navigate('MainTabs'); // Navigate to MainTabs after sign-up
+    if (password !== confirmPassword) {
+      Alert.alert('Error', 'Passwords do not match');
+      return;
+    }
+
+    // For demo purposes, any signup works
+    navigation.navigate('MainTabs');
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.appName}>Social Stakes</Text>
-      <Text style={styles.subtitle}>Create your account to get started.</Text>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}
+    >
+      <View style={styles.content}>
+        <Text style={styles.title}>Create Account</Text>
+        <Text style={styles.subtitle}>Join the betting community!</Text>
 
-      <View style={styles.formContainer}>
-        <TextInput
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          style={styles.input}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-        <TextInput
-          placeholder="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          style={styles.input}
-        />
+        <View style={styles.form}>
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Confirm Password"
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            secureTextEntry
+          />
+          <TouchableOpacity style={styles.button} onPress={handleSignup}>
+            <Text style={styles.buttonText}>Sign Up</Text>
+          </TouchableOpacity>
+        </View>
 
-        <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
-          <Text style={styles.signUpButtonText}>Sign Up</Text>
-        </TouchableOpacity>
+        <View style={styles.loginContainer}>
+          <Text style={styles.loginText}>Already have an account? </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('index')}>
+            <Text style={styles.loginLink}>Log In</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#fff',
+  },
+  content: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
     padding: 20,
   },
-  appName: {
+  title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#007bff',
     marginBottom: 10,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#666',
     marginBottom: 40,
-    textAlign: 'center',
   },
-  formContainer: {
+  form: {
     width: '100%',
     maxWidth: 400,
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
+    backgroundColor: '#f5f5f5',
     padding: 15,
-    marginBottom: 20,
+    borderRadius: 10,
+    marginBottom: 15,
     fontSize: 16,
-    backgroundColor: '#fff',
   },
-  signUpButton: {
-    backgroundColor: '#28a745',
-    borderRadius: 8,
+  button: {
+    backgroundColor: '#007bff',
     padding: 15,
+    borderRadius: 10,
     alignItems: 'center',
-    marginBottom: 20,
+    marginTop: 10,
   },
-  signUpButtonText: {
+  buttonText: {
     color: '#fff',
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  loginContainer: {
+    flexDirection: 'row',
+    marginTop: 20,
+  },
+  loginText: {
+    color: '#666',
     fontSize: 16,
-    fontWeight: 'bold',
+  },
+  loginLink: {
+    color: '#007bff',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
-
-export default SignUpScreen;

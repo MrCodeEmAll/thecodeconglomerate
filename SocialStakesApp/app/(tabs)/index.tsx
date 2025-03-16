@@ -1,144 +1,141 @@
 // app/(tabs)/index.tsx
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { RootStackParamList } from '../screens/types';
-import { StackNavigationProp } from '@react-navigation/stack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack'; // Changed to 'NativeStackNavigationProp'
+import { RootStackParamList } from '../types';
 
-type IndexScreenNavigationProp = StackNavigationProp<RootStackParamList, 'index'>;
+type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'index'>;
 
-const IndexScreen: React.FC = () => {
+export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const navigation = useNavigation<IndexScreenNavigationProp>();
+  const navigation = useNavigation<LoginScreenNavigationProp>();
 
   const handleLogin = () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please enter both email and password.');
+      Alert.alert('Error', 'Please fill in all fields');
       return;
     }
-
-    // Mock authentication logic
-    if (email === 'user@example.com' && password === 'password') {
-      setIsLoggedIn(true);
-      Alert.alert('Success', 'Logged in successfully!');
-      navigation.navigate('MainTabs'); // Navigate to MainTabs after login
-    } else {
-      Alert.alert('Error', 'Invalid email or password.');
-    }
-  };
-
-  const handleForgotPassword = () => {
-    Alert.alert('Forgot Password', 'A password reset link has been sent to your email.');
+    // For demo purposes, any login works
+    navigation.navigate('MainTabs');
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.appName}>Social Stakes</Text>
-      <Text style={styles.subtitle}>Bet with friends, have fun, and win bragging rights!</Text>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}
+    >
+      <View style={styles.content}>
+        <Text style={styles.title}>Social Stakes</Text>
+        <Text style={styles.subtitle}>Place your bets with friends!</Text>
 
-      <View style={styles.formContainer}>
-        <TextInput
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          style={styles.input}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-        <TextInput
-          placeholder="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          style={styles.input}
-        />
+        <View style={styles.form}>
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
+          <TouchableOpacity style={styles.button} onPress={handleLogin}>
+            <Text style={styles.buttonText}>Log In</Text>
+          </TouchableOpacity>
+        </View>
 
-        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-          <Text style={styles.loginButtonText}>Login</Text>
+        <TouchableOpacity>
+          <Text style={styles.forgotPassword}>Forgot Password?</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={handleForgotPassword}>
-          <Text style={styles.forgotPasswordText}>Forgot password?</Text>
-        </TouchableOpacity>
+        <View style={styles.signupContainer}>
+          <Text style={styles.signupText}>Don't have an account? </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('signup')}>
+            <Text style={styles.signupLink}>Sign Up</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>Don't have an account?</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('signup')}>
-          <Text style={styles.signUpText}>Sign up</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+    </KeyboardAvoidingView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#fff',
+  },
+  content: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
     padding: 20,
   },
-  appName: {
+  title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#007bff',
     marginBottom: 10,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#666',
     marginBottom: 40,
-    textAlign: 'center',
   },
-  formContainer: {
+  form: {
     width: '100%',
     maxWidth: 400,
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
+    backgroundColor: '#f5f5f5',
     padding: 15,
-    marginBottom: 20,
+    borderRadius: 10,
+    marginBottom: 15,
     fontSize: 16,
-    backgroundColor: '#fff',
   },
-  loginButton: {
+  button: {
     backgroundColor: '#007bff',
-    borderRadius: 8,
     padding: 15,
+    borderRadius: 10,
     alignItems: 'center',
-    marginBottom: 20,
+    marginTop: 10,
   },
-  loginButtonText: {
+  buttonText: {
     color: '#fff',
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  forgotPassword: {
+    color: '#007bff',
+    marginTop: 20,
     fontSize: 16,
-    fontWeight: 'bold',
   },
-  forgotPasswordText: {
-    color: '#007bff',
-    fontSize: 14,
-    textAlign: 'center',
-  },
-  footer: {
-    marginTop: 40,
+  signupContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
+    marginTop: 20,
   },
-  footerText: {
-    fontSize: 14,
+  signupText: {
     color: '#666',
+    fontSize: 16,
   },
-  signUpText: {
-    fontSize: 14,
+  signupLink: {
     color: '#007bff',
-    fontWeight: 'bold',
-    marginLeft: 5,
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
-
-export default IndexScreen;
