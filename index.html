@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Stakes - Friend Betting App</title>
+    <style>
+        /* Global Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Header */
+        .header {
+            background-color: #0e0e0f;
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        /* Login Screen */
+        .login-screen {
+            background-color: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-top: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        button {
+            background-color: #030303;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        button:hover {
+            background-color: #000000;
+        }
+        
+        .social-login {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .social-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+        }
+        
+        /* Dashboard */
+        .dashboard {
+            display: none;
+        }
+        
+        .stats-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+        }
+        
+        .stats-heading {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #000000;
+        }
+        
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .bet-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+        }
+        
+        .bet-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .bet-details {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        
+        .bet-participants {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .participant {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .small-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        
+        .bet-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .secondary-btn {
+            background-color: #f5f5f5;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+        
+        /* Create Bet Form */
+        .create-bet-screen {
+            display: none;
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .form-title {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            color: #000000;
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .friend-select {
+            margin-bottom: 1rem;
+        }
+        
+        .friends-list {
+            margin-top: 0.5rem;
+        }
+        
+        .friend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        
+        .friend-item:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .friend-item.selected {
+            background-color: #e6ecff;
+        }
+        
+        /* Friends Screen */
+        .friends-screen {
+            display: none;
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .search-bar {
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .search-input {
+            flex: 1;
+        }
+        
+        .friends-container {
+            margin-top: 1rem;
+        }
+        
+        .friend-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .friend-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .friend-name {
+            font-weight: 500;
+        }
+        
+        .friend-stats {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        /* Verification Screen */
+        .verification-screen {
+            display: none;
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .upload-area {
+            border: 2px dashed #ddd;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        
+        .upload-area:hover {
+            border-color: #000000;
+            background-color: #f9faff;
+        }
+        
+        /* Navigation */
+        .bottom-nav {
+            display: flex;
+            background-color: white;
+            border-top: 1px solid #eee;
+            position: sticky;
+            bottom: 0;
+        }
+        
+        .nav-item {
+            flex: 1;
+            padding: 1rem 0.5rem;
+            text-align: center;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        
+        .nav-item:hover, .nav-item.active {
+            color: #000000;
+            background-color: #f5f8ff;
+        }
+        
+        .nav-icon {
+            font-size: 1.4rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        /* Notifications */
+        .notification-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: #000000;
+            border-radius: 50%;
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                padding: 0.75rem;
+            }
+            
+            .main-content {
+                padding: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">Social Stakes</div>
+            <div id="user-info" class="user-info" style="display: none;">
+                <div class="avatar">JD</div>
+                <div>John Doe</div>
+            </div>
+        </header>
+        
+        <main class="main-content">
+            <!-- Login Screen -->
+            <div id="login-screen" class="login-screen">
+                <h2>Sign In to Social Stakes</h2>
+                <p style="margin-bottom: 1.5rem;">Place bets with friends on anything.</p>
+                
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" value="johndoe" placeholder="Enter your username">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" value="password" placeholder="Enter your password">
+                </div>
+                
+                <button id="login-btn" class="login-btn">Sign In</button>
+                
+                <div style="text-align: center; margin: 1rem 0;">
+                    <span>or</span>
+                </div>
+                
+                <div class="social-login">
+                    <button class="social-btn">
+                        <span>Facebook</span>
+                    </button>
+                    <button class="social-btn">
+                        <span>Google</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Dashboard -->
+            <div id="dashboard" class="dashboard">
+                <div class="stats-card">
+                    <h3 class="stats-heading">Your Betting Stats</h3>
+                    <div class="stats-row">
+                        <span>Win/Loss Record</span>
+                        <span>7-3</span>
+                    </div>
+                    <div class="stats-row">
+                        <span>Active Bets</span>
+                        <span>4</span>
+                    </div>
+                    <div class="stats-row">
+                        <span>Leaderboard Position</span>
+                        <span>#3 in Friends</span>
+                    </div>
+                </div>
+                
+                <h3 style="margin: 1.5rem 0 1rem;">Active Bets</h3>
+                
+                <div class="bet-card">
+                    <div class="bet-title">Who will get a better grade on the final exam</div>
+                    <div class="bet-details">Ends in 3 days • 100 points at stake</div>
+                    <div class="bet-participants">
+                        <div class="participant">
+                            <div class="small-avatar">JD</div>
+                            <span>You</span>
+                        </div>
+                        <span>vs</span>
+                        <div class="participant">
+                            <div class="small-avatar">MS</div>
+                            <span>Mike S.</span>
+                        </div>
+                    </div>
+                    <div class="bet-actions">
+                        <button class="secondary-btn">View Details</button>
+                    </div>
+                </div>
+                
+                <div class="bet-card">
+                    <div class="bet-title">Who will finish the project first</div>
+                    <div class="bet-details">Ends in 1 week • 50 points at stake</div>
+                    <div class="bet-participants">
+                        <div class="participant">
+                            <div class="small-avatar">JD</div>
+                            <span>You</span>
+                        </div>
+                        <span>vs</span>
+                        <div class="participant">
+                            <div class="small-avatar">AL</div>
+                            <span>Amy L.</span>
+                        </div>
+                    </div>
+                    <div class="bet-actions">
+                        <button class="secondary-btn">View Details</button>
+                    </div>
+                </div>
+                
+                <div class="bet-card">
+                    <div class="bet-title">Last person to finish their coffee buys lunch</div>
+                    <div class="bet-details">Ends Today • Bragging rights</div>
+                    <div class="bet-participants">
+                        <div class="participant">
+                            <div class="small-avatar">JD</div>
+                            <span>You</span>
+                        </div>
+                        <span>vs</span>
+                        <div class="participant">
+                            <div class="small-avatar">TJ</div>
+                            <span>Tim J.</span>
+                        </div>
+                    </div>
+                    <div class="bet-actions">
+                        <button class="secondary-btn">Submit Evidence</button>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 1rem; text-align: center;">
+                    <button id="create-bet-btn">+ Create New Bet</button>
+                </div>
+            </div>
+            
+            <!-- Create Bet Screen -->
+            <div id="create-bet-screen" class="create-bet-screen">
+                <h3 class="form-title">Create a New Bet</h3>
+                
+                <div class="form-group">
+                    <label for="bet-title">What's the bet about?</label>
+                    <input type="text" id="bet-title" placeholder="e.g., Who will score higher on the next test">
+                </div>
+                
+                <div class="form-group">
+                    <label for="bet-description">Description (optional)</label>
+                    <textarea id="bet-description" placeholder="Add any details or rules"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Choose Opponent</label>
+                    <div class="friends-list">
+                        <div class="friend-item">
+                            <div class="small-avatar">MS</div>
+                            <span>Mike Smith</span>
+                        </div>
+                        <div class="friend-item">
+                            <div class="small-avatar">AL</div>
+                            <span>Amy Lee</span>
+                        </div>
+                        <div class="friend-item">
+                            <div class="small-avatar">TJ</div>
+                            <span>Tim Jones</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="bet-stake">Stake</label>
+                    <input type="number" id="bet-stake" placeholder="Points" value="50">
+                </div>
+                
+                <div class="form-group">
+                    <label for="bet-expiry">Expires on</label>
+                    <input type="date" id="bet-expiry">
+                </div>
+                
+                <div class="form-group">
+                    <label>Verification Method</label>
+                    <select style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+                        <option>Photo Evidence</option>
+                        <option>Video Evidence</option>
+                        <option>Witness Confirmation</option>
+                        <option>Honor System</option>
+                    </select>
+                </div>
+                
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button id="cancel-create-bet" class="secondary-btn" style="flex: 1;">Cancel</button>
+                    <button id="submit-bet" style="flex: 1;">Create Bet</button>
+                </div>
+            </div>
+            
+            <!-- Friends Screen -->
+            <div id="friends-screen" class="friends-screen">
+                <h3 class="form-title">Friends</h3>
+                
+                <div class="search-bar">
+                    <input type="text" class="search-input" placeholder="Search friends...">
+                    <button>Find</button>
+                </div>
+                
+                <div class="friends-container">
+                    <div class="friend-card">
+                        <div class="friend-info">
+                            <div class="small-avatar">MS</div>
+                            <div>
+                                <div class="friend-name">Mike Smith</div>
+                                <div class="friend-stats">Win/Loss: 5-2</div>
+                            </div>
+                        </div>
+                        <button class="secondary-btn">Challenge</button>
+                    </div>
+                    
+                    <div class="friend-card">
+                        <div class="friend-info">
+                            <div class="small-avatar">AL</div>
+                            <div>
+                                <div class="friend-name">Amy Lee</div>
+                                <div class="friend-stats">Win/Loss: 8-1</div>
+                            </div>
+                        </div>
+                        <button class="secondary-btn">Challenge</button>
+                    </div>
+                    
+                    <div class="friend-card">
+                        <div class="friend-info">
+                            <div class="small-avatar">TJ</div>
+                            <div>
+                                <div class="friend-name">Tim Jones</div>
+                                <div class="friend-stats">Win/Loss: 3-6</div>
+                            </div>
+                        </div>
+                        <button class="secondary-btn">Challenge</button>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 1.5rem; text-align: center;">
+                    <button>+ Add New Friend</button>
+                </div>
+            </div>
+            
+            <!-- Verification Screen -->
+            <div id="verification-screen" class="verification-screen">
+                <h3 class="form-title">Submit Evidence</h3>
+                
+                <div class="bet-card" style="margin-bottom: 1.5rem;">
+                    <div class="bet-title">Last person to finish their coffee buys lunch</div>
+                    <div class="bet-details">Ends Today • Bragging rights</div>
+                    <div class="bet-participants">
+                        <div class="participant">
+                            <div class="small-avatar">JD</div>
+                            <span>You</span>
+                        </div>
+                        <span>vs</span>
+                        <div class="participant">
+                            <div class="small-avatar">TJ</div>
+                            <span>Tim J.</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="upload-area">
+                    <div style="margin-bottom: 0.5rem;">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                    </div>
+                    <div>Click to upload photo/video evidence</div>
+                    <div style="font-size: 0.8rem; color: #666; margin-top: 0.5rem;">or drag and drop files here</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="evidence-comment">Add a comment (optional)</label>
+                    <textarea id="evidence-comment" placeholder="Add any explanation about your evidence"></textarea>
+                </div>
+                
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button id="cancel-verification" class="secondary-btn" style="flex: 1;">Cancel</button>
+                    <button id="submit-evidence" style="flex: 1;">Submit Evidence</button>
+                </div>
+            </div>
+        </main>
+        
+        <nav class="bottom-nav">
+            <div id="nav-home" class="nav-item active">
+                <div class="nav-icon">🏠</div>
+                <div>Home</div>
+            </div>
+            <div id="nav-bets" class="nav-item">
+                <div class="nav-icon">🎲</div>
+                <div>My Bets</div>
+            </div>
+            <div id="nav-create" class="nav-item">
+                <div class="nav-icon">➕</div>
+                <div>Create</div>
+            </div>
+            <div id="nav-friends" class="nav-item">
+                <div class="nav-icon" style="position: relative;">
+                    👥
+                    <span class="notification-dot"></span>
+                </div>
+                <div>Friends</div>
+            </div>
+            <div id="nav-profile" class="nav-item">
+                <div class="nav-icon">👤</div>
+                <div>Profile</div>
+            </div>
+        </nav>
+    </div>
+
+    <script>
+        // DOM Elements
+        const loginScreen = document.getElementById('login-screen');
+        const dashboard = document.getElementById('dashboard');
+        const createBetScreen = document.getElementById('create-bet-screen');
+        const friendsScreen = document.getElementById('friends-screen');
+        const verificationScreen = document.getElementById('verification-screen');
+        const userInfo = document.getElementById('user-info');
+        
+        // Navigation Elements
+        const navHome = document.getElementById('nav-home');
+        const navBets = document.getElementById('nav-bets');
+        const navCreate = document.getElementById('nav-create');
+        const navFriends = document.getElementById('nav-friends');
+        const navProfile = document.getElementById('nav-profile');
+        
+        // Buttons
+        const loginBtn = document.getElementById('login-btn');
+        const createBetBtn = document.getElementById('create-bet-btn');
+        const cancelCreateBtn = document.getElementById('cancel-create-bet');
+        const submitBetBtn = document.getElementById('submit-bet');
+        const cancelVerificationBtn = document.getElementById('cancel-verification');
+        const submitEvidenceBtn = document.getElementById('submit-evidence');
+        
+        // Friend Selection
+        const friendItems = document.querySelectorAll('.friend-item');
+        
+        // Helper function to hide all screens
+        function hideAllScreens() {
+            loginScreen.style.display = 'none';
+            dashboard.style.display = 'none';
+            createBetScreen.style.display = 'none';
+            friendsScreen.style.display = 'none';
+            verificationScreen.style.display = 'none';
+        }
+        
+        // Helper function to reset active nav
+        function resetActiveNav() {
+            navHome.classList.remove('active');
+            navBets.classList.remove('active');
+            navCreate.classList.remove('active');
+            navFriends.classList.remove('active');
+            navProfile.classList.remove('active');
+        }
+        
+        // Login Button Click
+        loginBtn.addEventListener('click', () => {
+            hideAllScreens();
+            dashboard.style.display = 'block';
+            userInfo.style.display = 'flex';
+        });
+        
+        // Create Bet Button Click
+        createBetBtn.addEventListener('click', () => {
+            hideAllScreens();
+            createBetScreen.style.display = 'block';
+            resetActiveNav();
+            navCreate.classList.add('active');
+        });
+        
+        // Cancel Create Bet Button Click
+        cancelCreateBtn.addEventListener('click', () => {
+            hideAllScreens();
+            dashboard.style.display = 'block';
+            resetActiveNav();
+            navHome.classList.add('active');
+        });
+        
+        // Submit Bet Button Click
+        submitBetBtn.addEventListener('click', () => {
+            // Simulate creating a new bet
+            alert('Bet created successfully!');
+            hideAllScreens();
+            dashboard.style.display = 'block';
+            resetActiveNav();
+            navHome.classList.add('active');
+        });
+        
+        // Cancel Verification Button Click
+        cancelVerificationBtn.addEventListener('click', () => {
+            hideAllScreens();
+            dashboard.style.display = 'block';
+            resetActiveNav();
+            navHome.classList.add('active');
+        });
+        
+        // Submit Evidence Button Click
+        submitEvidenceBtn.addEventListener('click', () => {
+            // Simulate submitting evidence
+            alert('Evidence submitted successfully!');
+            hideAllScreens();
+            dashboard.style.display = 'block';
+            resetActiveNav();
+            navHome.classList.add('active');
+        });
+        
+        // Navigation Click Events
+        navHome.addEventListener('click', () => {
+            hideAllScreens();
+            dashboard.style.display = 'block';
+            resetActiveNav();
+            navHome.classList.add('active');
+        });
+        
+        navBets.addEventListener('click', () => {
+            hideAllScreens();
+            dashboard.style.display = 'block';  // For demo, just show dashboard
+            resetActiveNav();
+            navBets.classList.add('active');
+        });
+        
+        navCreate.addEventListener('click', () => {
+            hideAllScreens();
+            createBetScreen.style.display = 'block';
+            resetActiveNav();
+            navCreate.classList.add('active');
+        });
+        
+        navFriends.addEventListener('click', () => {
+            hideAllScreens();
+            friendsScreen.style.display = 'block';
+            resetActiveNav();
+            navFriends.classList.add('active');
+            
+            // Remove notification dot when visiting
+            const notificationDot = navFriends.querySelector('.notification-dot');
+            if (notificationDot) {
+                notificationDot.style.display = 'none';
+            }
+        });
+        
+        navProfile.addEventListener('click', () => {
+            hideAllScreens();
+            dashboard.style.display = 'block';  // For demo, just show dashboard
+            resetActiveNav();
+            navProfile.classList.add('active');
+        });
+        
+        // Friend Selection
+        friendItems.forEach(item => {
+            item.addEventListener('click', () => {
+                friendItems.forEach(i => i.classList.remove('selected'));
+                item.classList.add('selected');
+            });
+        });
+        
+        // Add click handler for "Submit Evidence" button on active bets
+        document.querySelector('.bet-actions .secondary-btn').addEventListener('click', () => {
+            if (event.target.textContent === 'Submit Evidence') {
+                hideAllScreens();
+                verificationScreen.style.display = 'block';
+                resetActiveNav();
+            }
+        });
+        
+        // Set initial date for expiry to tomorrow
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const formattedDate = tomorrow.toISOString().split('T')[0];
+        document.getElementById('bet-expiry').value = formattedDate;
+    </script>
+</body>
+</html>
