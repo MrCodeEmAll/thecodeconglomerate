@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
+  TextInput,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
@@ -11,16 +12,23 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { betsAPI } from '../services/api';
 import { useRoute, useNavigation } from '@react-navigation/native';
+import { Bet } from '../types/bet';
+import { useAuth } from '../contexts/AuthContext';
+
+interface RouteParams {
+  betId: string;
+}
 
 const BetDetailsScreen = () => {
   const route = useRoute();
   const navigation = useNavigation();
-  const [bet, setBet] = useState(null);
+  const { user } = useAuth();
+  const [bet, setBet] = useState<Bet | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedOption, setSelectedOption] = useState('');
+  const [selectedOption, setSelectedOption] = useState<number>(-1);
   const [betAmount, setBetAmount] = useState('');
 
-  const betId = route.params?.betId;
+  const { betId } = route.params as RouteParams;
 
   useEffect(() => {
     fetchBetDetails();
@@ -38,27 +46,46 @@ const BetDetailsScreen = () => {
   };
 
   const handleJoinBet = async () => {
-    if (!selectedOption || !betAmount) {
+    if (selectedOption === -1 || !betAmount) {
       Alert.alert('Error', 'Please select an option and enter bet amount');
       return;
     }
 
     try {
-      await betsAPI.joinBet(betId, selectedOption, parseFloat(betAmount));
+      if (!user?._id) {
+        Alert.alert('Error', 'Please sign in to join bets');
+        return;
+      }
+      
+      if (!bet?.options[selectedOption]) {
+        Alert.alert('Error', 'Invalid option selected');
+        return;
+      }
+
+      await betsAPI.joinBet(
+        betId,
+        bet.options[selectedOption].text,
+        parseFloat(betAmount)
+      );
       Alert.alert('Success', 'Successfully joined the bet!');
       fetchBetDetails(); // Refresh bet details
-    } catch (error) {
+    } catch (error: any) {
       Alert.alert('Error', error.response?.data?.message || 'Failed to join bet');
     }
   };
 
-  const handleResolveBet = async (outcome) => {
+  const handleResolveBet = async (outcomeIndex: number) => {
     try {
-      await betsAPI.resolveBet(betId, outcome);
+      if (!bet?.options[outcomeIndex]) {
+        Alert.alert('Error', 'Invalid option selected');
+        return;
+      }
+
+      await betsAPI.resolveBet(betId, bet.options[outcomeIndex].text);
       Alert.alert('Success', 'Bet resolved successfully!');
       navigation.goBack();
-    } catch (error) {
-      Alert.alert('Error', 'Failed to resolve bet');
+    } catch (error: any) {
+      Alert.alert('Error', error.response?.data?.message || 'Failed to resolve bet');
     }
   };
 
@@ -78,9 +105,9 @@ const BetDetailsScreen = () => {
     );
   }
 
-  const isCreator = bet.creator._id === 'currentUserId'; // Replace with actual user ID check
+  const isCreator = bet.creator._id === user?._id;
   const canJoin = bet.status === 'open' && !isCreator;
-  const canResolve = isCreator && bet.status === 'in_progress';
+  const canResolve = isCreator && bet.status === 'open';
 
   return (
     <SafeAreaView style={styles.container}>
@@ -112,9 +139,9 @@ const BetDetailsScreen = () => {
               key={index}
               style={[
                 styles.optionButton,
-                selectedOption === option.text && styles.selectedOption,
+                selectedOption === index && styles.selectedOption,
               ]}
-              onPress={() => setSelectedOption(option.text)}
+              onPress={() => setSelectedOption(index)}
               disabled={!canJoin}
             >
               <Text style={styles.optionText}>{option.text}</Text>
@@ -124,31 +151,34 @@ const BetDetailsScreen = () => {
         </View>
 
         {canJoin && (
-          <View style={styles.joinSection}>
-            <TextInput
-              style={styles.amountInput}
-              value={betAmount}
-              onChangeText={setBetAmount}
-              placeholder="Enter bet amount"
-              keyboardType="numeric"
-            />
-            <TouchableOpacity
-              style={styles.joinButton}
-              onPress={handleJoinBet}
-            >
-              <Text style={styles.joinButtonText}>Join Bet</Text>
-            </TouchableOpacity>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Join Bet</Text>
+            <View style={styles.joinSection}>
+              <TextInput
+                style={[styles.input, styles.amountInput]}
+                value={betAmount}
+                onChangeText={setBetAmount}
+                placeholder="Enter bet amount"
+                keyboardType="numeric"
+              />
+              <TouchableOpacity
+                style={styles.joinButton}
+                onPress={handleJoinBet}
+              >
+                <Text style={styles.joinButtonText}>Join Bet</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
 
         {canResolve && (
-          <View style={styles.resolveSection}>
+          <View style={styles.section}>
             <Text style={styles.sectionTitle}>Resolve Bet</Text>
             {bet.options.map((option, index) => (
               <TouchableOpacity
                 key={index}
                 style={styles.resolveButton}
-                onPress={() => handleResolveBet(option.text)}
+                onPress={() => handleResolveBet(index)}
               >
                 <Text style={styles.resolveButtonText}>
                   Select "{option.text}" as Winner
@@ -166,7 +196,7 @@ const BetDetailsScreen = () => {
                 {participant.user.username}
               </Text>
               <Text style={styles.participantChoice}>
-                Choice: {participant.choice}
+                Choice: {bet.options[participant.selectedOption].text}
               </Text>
               <Text style={styles.participantAmount}>
                 Amount: ${participant.amount}
@@ -257,22 +287,26 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   joinSection: {
-    backgroundColor: '#fff',
-    padding: 16,
-    marginTop: 8,
+    flexDirection: 'row',
+    gap: 8,
+    alignItems: 'center',
   },
-  amountInput: {
+  input: {
     borderWidth: 1,
     borderColor: '#ddd',
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
-    marginBottom: 12,
+    backgroundColor: '#fff',
+  },
+  amountInput: {
+    flex: 1,
   },
   joinButton: {
-    backgroundColor: '#0066cc',
-    padding: 16,
+    backgroundColor: '#28a745',
+    padding: 12,
     borderRadius: 8,
+    minWidth: 100,
     alignItems: 'center',
   },
   joinButtonText: {
@@ -280,13 +314,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-  resolveSection: {
-    backgroundColor: '#fff',
-    padding: 16,
-    marginTop: 8,
-  },
   resolveButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#0066cc',
     padding: 16,
     borderRadius: 8,
     alignItems: 'center',
@@ -298,25 +327,25 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   participantItem: {
-    padding: 12,
     backgroundColor: '#f8f8f8',
+    padding: 12,
     borderRadius: 8,
     marginBottom: 8,
   },
   participantName: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '600',
     color: '#333',
+    marginBottom: 4,
   },
   participantChoice: {
     fontSize: 14,
     color: '#666',
-    marginTop: 4,
+    marginBottom: 2,
   },
   participantAmount: {
     fontSize: 14,
     color: '#666',
-    marginTop: 2,
   },
 });
 

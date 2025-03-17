@@ -1,10 +1,10 @@
 const admin = require('firebase-admin');
-const serviceAccount = require('../firebase-admin.json');
 
-// Initialize Firebase
+// Initialize Firebase with a temporary configuration for presentation
 const initializeFirebase = () => {
   admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
+    credential: admin.credential.applicationDefault(),
+    databaseURL: 'https://socialstakes-default-rtdb.firebaseio.com'
   });
 };
 

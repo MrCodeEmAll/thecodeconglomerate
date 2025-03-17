@@ -2,7 +2,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Bet, CreateBetData, User } from '../types/bet';
 
-const BASE_URL = 'http://localhost:3000/api';
+const BASE_URL = process.env.API_BASE_URL || 'http://localhost:3000/api';
 
 const api = axios.create({
   baseURL: BASE_URL,
