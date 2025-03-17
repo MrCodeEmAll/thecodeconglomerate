@@ -27,6 +27,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "sdkVersion": "52.0.0",
+    "plugins": [
+      "expo-router",
+      "expo-dev-client"
+    ],
+    "scheme": "socialstakes"
   }
 }
